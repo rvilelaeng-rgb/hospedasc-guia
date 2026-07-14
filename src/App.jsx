@@ -636,12 +636,14 @@ function PropertyForm({ initial, onCancel, onSave }) {
   const [p, setP] = useState(initial);
   const [imgPreviewError, setImgPreviewError] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const set = (k) => (v) => setP((prev) => ({ ...prev, [k]: v }));
 
   const handleUpload = (file) => {
     if (!file) return;
     setUploading(true);
     setImgPreviewError(false);
+    setUploadError("");
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new window.Image();
@@ -660,7 +662,11 @@ function PropertyForm({ initial, onCancel, onSave }) {
               set("coverImage")(url);
             } catch (err) {
               console.error("Erro ao enviar foto", err);
-              setImgPreviewError(true);
+              setUploadError(
+                err?.message
+                  ? `Não foi possível enviar a foto: ${err.message}`
+                  : "Não foi possível enviar a foto. Confira se o bucket 'property-photos' existe e tem permissão de upload no Supabase."
+              );
             } finally {
               setUploading(false);
             }
@@ -669,10 +675,10 @@ function PropertyForm({ initial, onCancel, onSave }) {
           0.75
         );
       };
-      img.onerror = () => setUploading(false);
+      img.onerror = () => { setUploading(false); setUploadError("Não foi possível processar essa imagem."); };
       img.src = ev.target.result;
     };
-    reader.onerror = () => setUploading(false);
+    reader.onerror = () => { setUploading(false); setUploadError("Não foi possível ler o arquivo selecionado."); };
     reader.readAsDataURL(file);
   };
 
@@ -734,6 +740,11 @@ function PropertyForm({ initial, onCancel, onSave }) {
           <div style={{ fontFamily: "Inter", fontSize: 11, color: T.inkSoft, marginTop: 4, lineHeight: 1.4 }}>
             Envie diretamente do celular ou computador (a foto é redimensionada automaticamente para carregar rápido).
           </div>
+          {uploadError && (
+            <div style={{ fontFamily: "Inter", fontSize: 11.5, color: T.danger, marginTop: 6, lineHeight: 1.4 }}>
+              {uploadError}
+            </div>
+          )}
         </div>
 
         <div className="mt-3">
