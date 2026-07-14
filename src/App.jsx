@@ -5,7 +5,7 @@ import {
   X, Home, ClipboardList, Save, ChevronRight, Waves, Tv, Wind,
   ShowerHead, Flame, WashingMachine, Info, Users, HeartPulse,
   Pill, Fuel, Star, MessageCircle, CheckSquare, Square, Copy as CopyIcon,
-  Link as LinkIcon, Image as ImageIcon, Eye
+  Link as LinkIcon, Image as ImageIcon, Eye, Globe, Instagram
 } from "lucide-react";
 import { loadGuideData, saveGuideData, uploadPhoto } from "./lib/supabase";
 
@@ -137,6 +137,9 @@ function waLink(phone) {
   return `https://wa.me/${digits}`;
 }
 
+const SITE_URL = "https://www.hospedasc.com.br/pt-br";
+const INSTAGRAM_URL = "https://www.instagram.com/hospedasc/";
+
 /* ---------------------------------------------------------
    Marca — casa com sol nascendo atrás e onda
 --------------------------------------------------------- */
@@ -181,20 +184,22 @@ function TideDivider({ color = T.sand }) {
 /* ---------------------------------------------------------
    Campo copiável ("etiqueta de bagagem")
 --------------------------------------------------------- */
-function CopyStub({ icon: Icon, label, value, mono = true }) {
+function CopyStub({ icon: Icon, label, value, mono = true, copyable = true }) {
   const [copied, setCopied] = useState(false);
   if (!value) return null;
   const doCopy = async () => {
+    if (!copyable) return;
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     } catch (e) {}
   };
+  const Tag = copyable ? "button" : "div";
   return (
-    <button
-      onClick={doCopy}
-      className="w-full text-left flex items-center gap-3 rounded-xl px-4 py-2.5 mb-1.5 transition-transform active:scale-[0.98]"
+    <Tag
+      onClick={copyable ? doCopy : undefined}
+      className={`w-full text-left flex items-center gap-3 rounded-xl px-4 py-2.5 mb-1.5 ${copyable ? "transition-transform active:scale-[0.98]" : ""}`}
       style={{ background: T.cloud, border: `1.5px dashed ${T.sandLine}` }}
     >
       <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 32, height: 32, background: T.sand, color: T.navy }}>
@@ -204,10 +209,12 @@ function CopyStub({ icon: Icon, label, value, mono = true }) {
         <div style={{ fontFamily: "Inter", fontSize: 11, color: T.inkSoft, letterSpacing: 0.3 }}>{label}</div>
         <div className="truncate" style={{ fontFamily: mono ? "IBM Plex Mono" : "Inter", fontWeight: 600, fontSize: 14, color: T.ink }}>{value}</div>
       </div>
-      <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: 28, height: 28, background: copied ? T.ok : T.gold, color: "#fff" }}>
-        {copied ? <Check size={13} /> : <Copy size={13} />}
-      </div>
-    </button>
+      {copyable && (
+        <div className="shrink-0 flex items-center justify-center rounded-full" style={{ width: 28, height: 28, background: copied ? T.ok : T.gold, color: "#fff" }}>
+          {copied ? <Check size={13} /> : <Copy size={13} />}
+        </div>
+      )}
+    </Tag>
   );
 }
 
@@ -273,51 +280,30 @@ function LockedLanding({ onAdminClick }) {
    Tela: detalhe do imóvel (visão do hóspede)
 --------------------------------------------------------- */
 function DetailView({ p, onBack, guestLocked }) {
-  const [copiedAll, setCopiedAll] = useState(false);
   const [checked, setChecked] = useState({});
   const [imgError, setImgError] = useState(false);
-  const hue = HUES[p.hue % HUES.length];
   const showImg = p.coverImage && !imgError;
 
   const toggleCheck = (id) => setChecked((c) => ({ ...c, [id]: !c[id] }));
-
-  const pills = [
-    p.checkin ? { icon: Home, label: `Check-in ${p.checkin}` } : null,
-    p.checkout ? { icon: Home, label: `Check-out ${p.checkout}` } : null,
-  ].filter(Boolean);
-
-  const copyAll = async () => {
-    const lines = [
-      `${p.name} — ${p.city}`,
-      p.hostName ? `Anfitrião(ã): ${p.hostName}` : null,
-      ``,
-      `Endereço: ${p.address}`,
-      `Check-in: ${p.checkin}  •  Check-out: ${p.checkout}`,
-      p.maxGuests ? `Máximo de hóspedes: ${p.maxGuests}` : null,
-      p.wifiName ? `Wi-Fi: ${p.wifiName} / Senha: ${p.wifiPass}` : null,
-      p.doorCode ? `Código da porta: ${p.doorCode}` : null,
-      p.gateCode ? `Código do portão: ${p.gateCode}` : null,
-      `\nRegras: pets ${p.petsAllowed ? "permitido" : "não permitido"}; fumar ${p.smokingAllowed ? "permitido" : "não permitido"}; festas ${p.partyAllowed ? "permitido" : "não permitido"}; silêncio ${p.quietHours || "-"}.`,
-      p.items?.length ? `\nItens da casa:\n${p.items.map((i) => `- ${i.name}: ${i.instructions}`).join("\n")}` : null,
-      p.emergency?.length ? `\nContatos:\n${p.emergency.map((e) => `- ${e.label}: ${e.phone}`).join("\n")}` : null,
-      p.recommendations?.length ? `\nRecomendações:\n${p.recommendations.map((r) => `- ${r.name} — ${r.note}`).join("\n")}` : null,
-    ].filter(Boolean).join("\n");
-    try {
-      await navigator.clipboard.writeText(lines);
-      setCopiedAll(true);
-      setTimeout(() => setCopiedAll(false), 1600);
-    } catch (e) {}
-  };
 
   return (
     <div className="flex flex-col" style={{ background: T.sand, minHeight: "100%" }}>
       <div
         className="px-5 pt-6 pb-5 relative overflow-hidden"
-        style={{ background: showImg ? "#000" : `linear-gradient(160deg, ${hue.a}, ${hue.b})`, minHeight: showImg ? 190 : undefined }}
+        style={{
+          background: showImg
+            ? "#000"
+            : "radial-gradient(circle at 78% 30%, rgba(243,217,164,0.9) 0%, rgba(201,160,99,0.5) 16%, rgba(201,160,99,0) 34%), linear-gradient(200deg, #7C5A3A 0%, #A4703F 22%, #5C4A55 46%, #2C3B54 68%, #16283F 100%)",
+          minHeight: 200,
+        }}
       >
         {showImg && (
           <img src={p.coverImage} onError={() => setImgError(true)} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0.55 }} />
         )}
+        {!showImg && (
+          <div className="absolute inset-0" style={{ background: "linear-gradient(200deg, transparent 55%, rgba(13,27,42,0.55) 100%)" }} />
+        )}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(13,27,42,0) 30%, rgba(13,27,42,0.55) 70%, rgba(13,27,42,0.92) 100%)" }} />
         <LogomarkWatermark size={190} style={{ bottom: -45, right: -55, opacity: 0.1 }} />
 
         <div className="relative z-10">
@@ -337,24 +323,15 @@ function DetailView({ p, onBack, guestLocked }) {
               <span style={{ fontFamily: "Inter", fontSize: 11, color: "#fff", fontWeight: 600 }}>Anfitrião 5 estrelas</span>
             </div>
           )}
-          <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 23, color: "#fff", lineHeight: 1.15 }}>{p.name}</div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <MapPin size={12} color="rgba(255,255,255,0.85)" />
-            <span style={{ fontFamily: "Inter", fontSize: 12.5, color: "rgba(255,255,255,0.85)" }}>{p.city}</span>
+          <div style={{ fontFamily: "Poppins", fontWeight: 800, fontSize: 24, color: "#fff", lineHeight: 1.1, textShadow: "0 2px 14px rgba(0,0,0,0.3)" }}>
+            Manual do <span style={{ color: T.goldSoft }}>Hóspede</span>
+          </div>
+          <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 14.5, color: T.goldSoft, marginTop: 4 }}>
+            {p.name} — {p.city}
           </div>
           {p.description && (
             <div style={{ fontFamily: "Inter", fontSize: 12.5, color: "rgba(255,255,255,0.8)", marginTop: 6, lineHeight: 1.4, maxWidth: 420 }}>
               {p.description}
-            </div>
-          )}
-          {pills.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {pills.map((pill, i) => (
-                <div key={i} className="flex items-center gap-1.5 rounded-full px-3 py-1" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
-                  <pill.icon size={12} color="#fff" />
-                  <span style={{ fontFamily: "Inter", fontSize: 11.5, color: "#fff", fontWeight: 500 }}>{pill.label}</span>
-                </div>
-              ))}
             </div>
           )}
         </div>
@@ -378,20 +355,28 @@ function DetailView({ p, onBack, guestLocked }) {
         <div className="flex flex-wrap">
           <InfoChip icon={Home} label="Check-in" value={p.checkin} />
           <InfoChip icon={Home} label="Check-out" value={p.checkout} />
-          <InfoChip icon={Users} label="Hóspedes" value={p.maxGuests} />
         </div>
 
         <SectionLabel text="Acesso ao imóvel" />
         <InfoChip icon={Wifi} label="Rede Wi-Fi" value={p.wifiName} />
         <div className="w-full" />
         <CopyStub icon={Wifi} label="Senha do Wi-Fi" value={p.wifiPass} />
-        <CopyStub icon={KeyRound} label="Código da porta / fechadura" value={p.doorCode} />
-        <CopyStub icon={KeyRound} label="Código do portão" value={p.gateCode} />
+        <CopyStub icon={KeyRound} label="Código da porta / fechadura" value={p.doorCode} copyable={false} />
+        <CopyStub icon={KeyRound} label="Código do portão" value={p.gateCode} copyable={false} />
 
         <SectionLabel text="Regras da casa" />
         <RuleChip ok={p.petsAllowed} label={p.petsAllowed ? "Pets permitidos" : "Pets não permitidos"} note={p.petsAllowed ? p.petsNote : ""} />
         <RuleChip ok={p.smokingAllowed} label={p.smokingAllowed ? "Permitido fumar" : "Não é permitido fumar"} />
         <RuleChip ok={p.partyAllowed} label={p.partyAllowed ? "Festas permitidas" : "Não são permitidas festas"} />
+        {p.maxGuests && (
+          <div className="rounded-xl px-4 py-2.5 mb-1.5 flex items-start gap-3" style={{ background: T.cloud, border: `1px solid ${T.sandLine}` }}>
+            <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 28, height: 28, background: T.sand, color: T.navy }}><Users size={14} /></div>
+            <div>
+              <div style={{ fontFamily: "Inter", fontWeight: 600, fontSize: 13.5, color: T.ink }}>Máximo de hóspedes</div>
+              <div style={{ fontFamily: "Inter", fontSize: 12, color: T.inkSoft }}>{p.maxGuests}</div>
+            </div>
+          </div>
+        )}
         {p.quietHours && (
           <div className="rounded-xl px-4 py-2.5 mb-1.5 flex items-start gap-3" style={{ background: T.cloud, border: `1px solid ${T.sandLine}` }}>
             <div className="flex items-center justify-center rounded-full shrink-0" style={{ width: 28, height: 28, background: T.sand, color: T.navy }}><Info size={14} /></div>
@@ -472,19 +457,24 @@ function DetailView({ p, onBack, guestLocked }) {
           </>
         )}
 
-        <button onClick={copyAll} className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 mt-3" style={{ background: copiedAll ? T.ok : T.gold, color: "#fff", fontFamily: "Inter", fontWeight: 600, fontSize: 14 }}>
-          {copiedAll ? <Check size={16} /> : <ClipboardList size={16} />}
-          {copiedAll ? "Guia copiado!" : "Copiar guia completo"}
-        </button>
-
-        {guestLocked && (
-          <div className="flex items-center justify-center gap-2 mt-5 opacity-60">
-            <Logomark size={15} />
-            <span style={{ fontFamily: "Inter", fontSize: 11, color: T.inkSoft }}>Hospeda SC</span>
+        <div className="rounded-2xl mt-5 px-6 py-7 text-center relative overflow-hidden" style={{ background: T.navyDeep }}>
+          <LogomarkWatermark size={160} style={{ top: -40, left: -40, opacity: 0.08 }} />
+          <div className="relative z-10">
+            <div className="flex justify-center mb-2"><Logomark size={26} colorOverride="#fff" /></div>
+            <div style={{ fontFamily: "Poppins", fontWeight: 500, fontSize: 14, color: "#fff" }}>Hospeda SC</div>
+            <div style={{ fontFamily: "Inter", fontStyle: "italic", fontSize: 12, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Sinta-se em casa!</div>
+            <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+              <a href={SITE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5" style={{ fontFamily: "Inter", fontWeight: 600, fontSize: 11.5, color: T.goldSoft, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                <Globe size={12} /> Novas reservas
+              </a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5" style={{ fontFamily: "Inter", fontWeight: 600, fontSize: 11.5, color: T.goldSoft, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                <Instagram size={12} /> @hospedasc
+              </a>
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* tarja de respiro no final, garante que o botão acima não fique colado no fim da tela */}
+        {/* tarja de respiro no final, garante que o conteúdo acima não fique colado no fim da tela */}
         <div style={{ height: 28 }} />
       </div>
     </div>
