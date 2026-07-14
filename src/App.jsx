@@ -30,8 +30,6 @@ const T = {
   whatsapp: "#3F8A5A",
 };
 
-const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');`;
-
 const uid = () => Math.random().toString(36).slice(2, 9);
 const genToken = () => (Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 8));
 
@@ -967,7 +965,6 @@ export default function App() {
   if (loading) {
     return (
       <div style={{ height: "100dvh", width: "100%", maxWidth: 560, margin: "0 auto", position: "relative", overflow: "hidden", background: T.sand }}>
-        <style>{FONT_IMPORT}</style>
         <div className="flex items-center justify-center" style={{ height: "100%" }}>
           <div style={{ fontFamily: "Inter", color: T.inkSoft, fontSize: 14 }}>Carregando guia...</div>
         </div>
@@ -978,7 +975,6 @@ export default function App() {
   if (needsSetup) {
     return (
       <div style={{ height: "100dvh", width: "100%", maxWidth: 560, margin: "0 auto", position: "relative", overflow: "hidden", background: T.sand }}>
-        <style>{FONT_IMPORT}</style>
         <div style={{ height: "100%", overflowY: "auto" }}>
           <SetupScreen onComplete={completeSetup} />
         </div>
@@ -1029,7 +1025,6 @@ export default function App() {
 
   return (
     <div style={{ height: "100dvh", width: "100%", maxWidth: 560, margin: "0 auto", fontFamily: "Inter", position: "relative", overflow: "hidden", background: T.sand }}>
-      <style>{FONT_IMPORT}</style>
       <div style={{ height: "100%", overflowY: "auto" }}>
         {view === "locked" && !guestNotFound && <LockedLanding onAdminClick={() => setShowLogin(true)} />}
 

@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/poppins": "^5.2.7",
     "@supabase/supabase-js": "^2.45.0",
     "@vitejs/plugin-legacy": "^5.4.3",
     "lucide-react": "^0.383.0",

@@ -1,3 +1,18 @@
+/* Fontes auto-hospedadas (não dependem de rede externa, funcionam em
+   navegadores embutidos que bloqueiam fontes de terceiros) */
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/500-italic.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource/poppins/800.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
